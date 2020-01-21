@@ -1,11 +1,14 @@
 import xlrd
 import unicodedata
+from iiif_prezi.factory import ManifestFactory
 
-# take these as vars - or process until end?
+# take these as vars
 start_row = 7
-end_row = 95
+end_row = 95  # or process until end?
+
+# passing in headers as they are split over 2 rows in doc
 column_headers = "MHS_NUMBER,ALTERNATIVE_NAME,PAPER_NUMBER,ASSOCIATED_ATOLL,ASSOCIATED_ISLAND,PLACE,SCRIPT,LANGUAGE," \
-                 "TYPE,DATE,PAGES,HEIGHT,WIDTH,MATERIAL,ASSOCIATED_PERSONS,COMMENTS "
+                 "TYPE,DATE,PAGES,HEIGHT,WIDTH,MATERIAL,ASSOCIATED_PERSONS,COMMENTS"
 
 
 def process_workbook():
@@ -24,13 +27,33 @@ def process_workbook():
                 image_record[first_row[col]] = unicodedata.normalize("NFKD", value)
             else:
                 image_record[first_row[col]] = value
+
         data.append(image_record)
 
     return data
 
 
+def process_images(data):
+    # TODO group images by id
+    fac = ManifestFactory()
+
+    # Where the resources live on the web
+    # fac.set_base_prezi_uri("https://maldivesheritage.oxcis.ac.uk/object/")
+
+    # Where the resources live on disk
+    fac.set_base_prezi_dir(r"c:\temp\maldives\output")
+
+    fac.set_base_image_uri("https://maldivesheritage.oxcis.ac.uk/image/api/")
+    fac.set_iiif_image_info(2.1, 1)  # Version, ComplianceLevel
+
+
 def main():
-    process_workbook()
+    # process the workbook to get data
+    data = process_workbook()
+
+    # iterate through dictionary
+    # get image file for current entry
+    # build service description + manifest
 
 
 if __name__ == '__main__':
