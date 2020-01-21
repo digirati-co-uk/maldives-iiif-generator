@@ -41,10 +41,10 @@ def main():
     # process the workbook to get data
     data = process_workbook()
 
+    # iterate through dictionary
     image_processor = ImageProcessor()
     image_processor.generate_iiif_resources(data)
 
-    # iterate through dictionary
     # get image file for current entry
     # build service description + manifest
 
