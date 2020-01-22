@@ -1,5 +1,6 @@
 import xlrd
 import unicodedata
+import logging
 
 from app.image_processor import ImageProcessor
 
@@ -13,6 +14,7 @@ column_headers = "MHS_NUMBER,ALTERNATIVE_NAME,PAPER_NUMBER,ASSOCIATED_ATOLL,ASSO
 
 
 def process_workbook():
+    logging.debug("processing workbook..")
     workbook = xlrd.open_workbook(r"C:\temp\Maldives\Maldives.xlsx")
     worksheet = workbook.sheet_by_index(0)
 
@@ -43,6 +45,8 @@ def main():
 
     # iterate through dictionary
     image_processor = ImageProcessor()
+
+    logging.debug("generating IIIF resources..")
     image_processor.generate_iiif_resources(data)
 
     # get image file for current entry
