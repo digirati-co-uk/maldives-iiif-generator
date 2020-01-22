@@ -48,8 +48,8 @@ class ImageProcessor:
         manifest = self.fac.manifest(label="Manifest for " + mhs_number, ident=mhs_number)
 
         # add all the metadata fields manifest
-        manifest.set_metadata(image)
-        manifest.description = "This is a description for " + mhs_number
+        manifest.set_metadata({k: v for k, v in image.items() if v})
+        manifest.description = image["ALTERNATIVE_NAME"]
 
         return manifest
 
@@ -61,13 +61,14 @@ class ImageProcessor:
             cvs = seq.canvas(ident="page-%s" % p, label="Page %s" % p)
 
             # Create an annotation on the Canvas
-            anno = cvs.annotation()
+            anno = cvs.annotation(ident="page-%s" % p)
 
             # Add Image: http://www.example.org/path/to/image/api/p1/full/full/0/native.jpg
             img = anno.image("p%s" % p, iiif=True)
 
             # Set image height and width, and canvas to same dimensions
-            # imagefile = "/path/to/images/p%s.jpg" % p
-            # img.set_hw_from_file(imagefile)
-            cvs.height = 10 # img.height
-            cvs.width = 20 # img.width
+            # TODO - read correct images
+            imagefile = r"C:\temp\Maldives\imgs\HAF-IVD-1-MS1.1-P5.JPG" if p % 2 == 0 else r"C:\temp\Maldives\imgs\MHS-MS-1206-P41.jpg"
+            img.set_hw_from_file(imagefile)
+            cvs.height = img.height
+            cvs.width = img.width
