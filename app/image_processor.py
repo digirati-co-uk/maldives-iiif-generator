@@ -1,21 +1,25 @@
+import logging
+
 from iiif_prezi.factory import ManifestFactory
 from itertools import groupby
 from iiif.static import IIIFStatic
-import logging
+from app.settings import *
 
 
 class ImageProcessor:
     def __init__(self):
         self._manifest_factory = ManifestFactory()
-        self._tile_generator = IIIFStatic(dst=r"c:\temp\maldives\output")
+        self._tile_generator = IIIFStatic(dst=IMAGE_FILE_OUTPUT_DIR, prefix=IMAGE_BASE_URL)
 
         # Where the resources live on the web
-        self._manifest_factory.set_base_prezi_uri("https://maldivesheritage.oxcis.ac.uk/object/")
+        self._manifest_factory.set_base_prezi_uri(MANIFEST_BASE_URL)
 
         # Where the resources live on disk
-        self._manifest_factory.set_base_prezi_dir(r"c:\temp\maldives\output")
+        if not os.path.exists(MANIFEST_OUTPUT_DIR):
+            os.makedirs(MANIFEST_OUTPUT_DIR)
+        self._manifest_factory.set_base_prezi_dir(MANIFEST_OUTPUT_DIR)
 
-        self._manifest_factory.set_base_image_uri("https://maldivesheritage.oxcis.ac.uk/image/api/")
+        self._manifest_factory.set_base_image_uri(IMAGE_BASE_URL)
         self._manifest_factory.set_iiif_image_info(2.0, 1)  # Version, ComplianceLevel
 
     def generate_iiif_resources(self, data):
@@ -48,37 +52,41 @@ class ImageProcessor:
 
     def _create_manifest(self, image):
         mhs_number = self._get_mhs_number_root(image)
-        logging.debug("creating manifest for %s" % mhs_number)
-        manifest = self._manifest_factory.manifest(label="Manifest for %s" % mhs_number, ident=mhs_number)
+        alternative_name = image["ALTERNATIVE_NAME"]
+
+        logging.debug(f"creating manifest for {mhs_number}")
+        manifest = self._manifest_factory.manifest(label=f"{mhs_number} - {alternative_name}", ident=mhs_number)
 
         # add all the metadata fields manifest
         manifest.set_metadata({k: v for k, v in image.items() if v})
-        manifest.description = image["ALTERNATIVE_NAME"]
+        manifest.description = alternative_name
 
         return manifest
 
     def _add_canvases(self, images, manifest):
         image_count = len(images)
 
-        logging.debug("creating %d canvases" % image_count)
+        logging.debug(f"creating {image_count} canvases..")
 
         seq = manifest.sequence()
 
         for p in range(image_count):
             # Create a canvas with uri slug of page-1, and label of Page 1
             image_id = images[p]["MHS_NUMBER"]
-            cvs = seq.canvas(ident=image_id, label="Page %s" % p)
+            cvs = seq.canvas(ident=image_id, label=f"Page {p}")
 
             # Create an annotation on the Canvas
-            annotation = cvs.annotation(ident="page-%s" % p)
+            annotation = cvs.annotation(ident=f"page-{p}")
+
+            # set source of image data
+            img = annotation.image(f"{image_id}", iiif=True)
 
             # Add Image: http://www.example.org/path/to/image/api/p1/full/full/0/native.jpg
-            img = annotation.image("p%s" % p, iiif=True)
-
             # Set image height and width, and canvas to same dimensions
             # TODO - read correct images
             image_file = r"C:\temp\Maldives\imgs\HAF-IVD-1-MS1.1-P5.JPG" if p % 2 == 0 else r"C:\temp\Maldives\imgs\MHS-MS-1206-P41.jpg"
-            self._tile_generator.generate(image_file, image_id)
+
+            self._tile_generator.generate(src=image_file, identifier=image_id)
             img.set_hw_from_file(image_file)
             cvs.height = img.height
             cvs.width = img.width
