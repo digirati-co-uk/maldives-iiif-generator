@@ -25,7 +25,7 @@ MANIFEST_OUTPUT_DIR = os.environ.get("IMAGE_FILE_OUTPUT_DIR", r"c:\temp\maldives
 WORKBOOK = os.environ.get("IMAGE_BASE_URL", r"C:\temp\Maldives\Maldives.xlsx")
 
 # First row in workbook to process (0-based)
-START_ROW = os.environ.get("IMAGE_BASE_URL", 62)  # 7
+START_ROW = os.environ.get("IMAGE_BASE_URL", 7)
 
 # Last row in workbook to process (0-based)
-END_ROW = os.environ.get("IMAGE_BASE_URL", 63)  # 95
+END_ROW = os.environ.get("IMAGE_BASE_URL", 95)
