@@ -1,12 +1,10 @@
 import xlrd
 import unicodedata
 import logging
+import time
 
 from app.image_processor import ImageProcessor
-
-# take these as vars
-start_row = 7
-end_row = 95  # or process until end?
+from app.settings import *
 
 # passing in headers as they are split over 2 rows in doc
 column_headers = "MHS_NUMBER,ALTERNATIVE_NAME,PAPER_NUMBER,ASSOCIATED_ATOLL,ASSOCIATED_ISLAND,PLACE,SCRIPT,LANGUAGE," \
@@ -15,24 +13,21 @@ column_headers = "MHS_NUMBER,ALTERNATIVE_NAME,PAPER_NUMBER,ASSOCIATED_ATOLL,ASSO
 
 def process_workbook():
     logging.debug("processing workbook..")
-    workbook = xlrd.open_workbook(r"C:\temp\Maldives\Maldives.xlsx")
+    workbook = xlrd.open_workbook(WORKBOOK)
     worksheet = workbook.sheet_by_index(0)
 
     headers = column_headers.split(",")
 
     # transform the workbook to a list of dictionary
     data = []
-    for row in range(start_row, end_row):
+    for row in range(START_ROW, END_ROW):
         image_record = {
             headers[0]: unicodedata.normalize("NFKD", worksheet.cell_value(row, 0)).replace(" ", "")
         }
 
         for col in range(1, worksheet.ncols):
             value = worksheet.cell_value(row, col)
-            if isinstance(value, str):
-                image_record[headers[col]] = unicodedata.normalize("NFKD", value)
-            else:
-                image_record[headers[col]] = value
+            image_record[headers[col]] = unicodedata.normalize("NFKD", str(value))
 
         data.append(image_record)
 
@@ -40,6 +35,7 @@ def process_workbook():
 
 
 def main():
+    start = time.time()
     # process the workbook to get data
     data = process_workbook()
 
@@ -49,8 +45,8 @@ def main():
     logging.debug("generating IIIF resources..")
     image_processor.generate_iiif_resources(data)
 
-    # get image file for current entry
-    # build service description + manifest
+    end = time.time()
+    print(f"elapsed time {end - start} secs")
 
 
 if __name__ == '__main__':
