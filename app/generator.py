@@ -3,12 +3,9 @@ import unicodedata
 import logging
 import time
 
+from app.column_keys import ColumnKeys
 from app.image_processor import ImageProcessor
 from app.settings import *
-
-# passing in headers as they are split over 2 rows in doc
-column_headers = "MHS_NUMBER,ALTERNATIVE_NAME,PAPER_NUMBER,ASSOCIATED_ATOLL,ASSOCIATED_ISLAND,PLACE,SCRIPT,LANGUAGE," \
-                 "TYPE,DATE,PAGES,HEIGHT,WIDTH,MATERIAL,ASSOCIATED_PERSONS,COMMENTS"
 
 
 def process_workbook():
@@ -16,18 +13,23 @@ def process_workbook():
     workbook = xlrd.open_workbook(WORKBOOK)
     worksheet = workbook.sheet_by_index(0)
 
-    headers = column_headers.split(",")
+    headers = ColumnKeys.csv_list().split(",")
 
     # transform the workbook to a list of dictionary
     data = []
     for row in range(START_ROW, END_ROW):
-        image_record = {
-            headers[0]: unicodedata.normalize("NFKD", worksheet.cell_value(row, 0)).replace(" ", "")
-        }
+        image_record = {}
 
-        for col in range(1, worksheet.ncols):
+        for col in range(len(headers)):
             value = worksheet.cell_value(row, col)
-            image_record[headers[col]] = unicodedata.normalize("NFKD", str(value))
+            col_name = headers[col]
+
+            if col_name == ColumnKeys.NO:
+                value = int(value)
+            elif col_name == ColumnKeys.MHS_NUMBER:
+                value = value.replace(" ", "")
+
+            image_record[col_name] = unicodedata.normalize("NFKD", str(value))
 
         data.append(image_record)
 
@@ -36,13 +38,10 @@ def process_workbook():
 
 def main():
     start = time.time()
-    # process the workbook to get data
     data = process_workbook()
 
-    # iterate through dictionary
-    image_processor = ImageProcessor()
-
     logging.debug("generating IIIF resources..")
+    image_processor = ImageProcessor()
     image_processor.generate_iiif_resources(data)
 
     end = time.time()
