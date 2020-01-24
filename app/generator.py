@@ -21,10 +21,11 @@ def process_workbook():
         image_record = {}
 
         for col in range(len(headers)):
-            value = worksheet.cell_value(row, col)
+            cell = worksheet.cell(row, col)
+            value = cell.value
             col_name = headers[col]
 
-            if col_name == ColumnKeys.NO:
+            if cell.ctype in (2, 3) and int(value) == value:
                 value = int(value)
             elif col_name == ColumnKeys.MHS_NUMBER:
                 value = value.replace(" ", "")
