@@ -10,12 +10,8 @@ RUN apk add --update --no-cache --virtual=run-deps \
 WORKDIR /opt/app
 COPY . /opt/app
 
-# Run script to set environment variables
-RUN ./env.sh
-
 # Install dependencies
 RUN pip3 install --no-cache-dir -r /opt/app/requirements.txt
 
 # Run app
-CMD [ "python", "./test.py" ]
-
+CMD [ "python", "./generator.py" ]

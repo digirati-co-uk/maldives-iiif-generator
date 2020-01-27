@@ -3,9 +3,9 @@ import time
 from iiif_prezi.factory import ManifestFactory
 from iiif.static import IIIFStatic
 
-from app.column_keys import ColumnKeys
-from app.image_reader import ImageReader
-from app.settings import *
+from .column_keys import ColumnKeys
+from .image_reader import ImageReader
+from .settings import *
 
 
 class ImageProcessor:

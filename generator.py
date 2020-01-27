@@ -1,6 +1,5 @@
 import xlrd
 import unicodedata
-import logging
 import time
 
 from app.column_keys import ColumnKeys
@@ -9,7 +8,7 @@ from app.settings import *
 
 
 def process_workbook():
-    logging.debug("processing workbook..")
+    print("processing workbook..")
     workbook = xlrd.open_workbook(WORKBOOK)
     worksheet = workbook.sheet_by_index(0)
 
@@ -41,7 +40,7 @@ def main():
     start = time.time()
     data = process_workbook()
 
-    logging.debug("generating IIIF resources..")
+    print("generating IIIF resources..")
     image_processor = ImageProcessor()
     image_processor.generate_iiif_resources(data)
 

@@ -1,11 +1,9 @@
-import logging
-import os
-
-from app.column_keys import ColumnKeys
+from .settings import *
+from .column_keys import ColumnKeys
 
 
 class ImageReader:
-    _image_extension = ".jpg"
+    _image_extension = IMAGE_EXTENSION
 
     def __init__(self, base_dir):
         self._base_dir = base_dir
@@ -20,7 +18,7 @@ class ImageReader:
                     abs_path = os.path.abspath(os.path.join(root, file))
                     image_files.append(abs_path)
 
-        logging.debug(f"Got {len(image_files)} images in {folder}")
+        print(f"Got {len(image_files)} images in {folder}")
         return image_files
 
     @staticmethod
