@@ -1,5 +1,6 @@
 import time
 
+from pathlib import Path
 from iiif_prezi.factory import ManifestFactory
 from iiif.static import IIIFStatic
 
@@ -32,6 +33,12 @@ class ImageProcessor:
             self._process_manuscript(manuscript)
 
     def _process_manuscript(self, manuscript):
+        mhs_number = manuscript.get(ColumnKeys.MHS_NUMBER)
+
+        if Path(f"{MANIFEST_OUTPUT_DIR}/{mhs_number}.json").is_file():
+            print(f"{manuscript} already processed. Skipping")
+            return
+
         manifest = self._create_manifest(manuscript)
 
         self._add_canvases(manuscript, manifest)
