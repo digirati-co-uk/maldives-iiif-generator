@@ -38,8 +38,6 @@ class ImageProcessor:
 
         manifest.toFile(compact=False)
 
-        # TODO - save to S3
-
     def _create_manifest(self, manuscript):
         mhs_number = manuscript.get(ColumnKeys.MHS_NUMBER)
         alternative_name = manuscript.get(ColumnKeys.ALTERNATIVE_NAME)
@@ -47,8 +45,8 @@ class ImageProcessor:
         print(f"creating manifest for {mhs_number}")
         manifest = self._manifest_factory.manifest(label=f"{mhs_number} - {alternative_name}", ident=mhs_number)
 
-        # add all non-empty fields as metadata
-        manifest.set_metadata({k: v for k, v in manuscript.items() if v})
+        # add all non-empty fields as metadata (excluding "No" field as this is just internal
+        manifest.set_metadata({k: v for (k, v) in manuscript.items() if v and k != ColumnKeys.NO})
         manifest.description = alternative_name
         return manifest
 
