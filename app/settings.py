@@ -10,7 +10,7 @@ IMAGE_BASE_SLUG = os.environ.get("IMAGE_BASE_SLUG", "/images/api")
 IMAGE_BASE_URL = BASE_URL + IMAGE_BASE_SLUG
 
 # Output dir for generated image pyramid files
-IMAGE_FILE_OUTPUT_DIR = os.environ.get("IMAGE_FILE_OUTPUT_DIR", r"./output/api")
+IMAGE_FILE_OUTPUT_DIR = os.environ.get("IMAGE_FILE_OUTPUT_DIR", r"./output/images/api")
 
 # Folder containing subfolder per manuscript
 IMAGE_SOURCE_DIR = os.environ.get("IMAGE_SOURCE_DIR", r"./data/image")
