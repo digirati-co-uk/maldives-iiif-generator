@@ -5,6 +5,8 @@ from app.column_keys import ColumnKeys
 
 
 class ImageReader:
+    _image_extension = ".jpg"
+
     def __init__(self, base_dir):
         self._base_dir = base_dir
 
@@ -14,7 +16,7 @@ class ImageReader:
         image_files = []
         for root, dirs, files in os.walk(f"{self._base_dir}/{folder}"):
             for file in files:
-                if file.endswith(".jpg"):
+                if file.endswith(self._image_extension):
                     abs_path = os.path.abspath(os.path.join(root, file))
                     image_files.append(abs_path)
 
