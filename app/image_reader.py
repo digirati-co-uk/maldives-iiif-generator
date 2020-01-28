@@ -1,3 +1,5 @@
+import re
+
 from typing import Sequence
 
 from .settings import *
@@ -25,6 +27,7 @@ class ImageReader:
 
         image_files = []
         for root, dirs, files in os.walk(f"{self._base_dir}/{folder}"):
+            files.sort(key=self._natural_keys)
             for file in files:
                 if file.endswith(self._image_extension):
                     abs_path = os.path.abspath(os.path.join(root, file))
@@ -36,3 +39,12 @@ class ImageReader:
     @staticmethod
     def _get_folder_key(manuscript: ManuscriptRow) -> str:
         return f"{manuscript.get(ColumnKeys.NO)}. {manuscript.get(ColumnKeys.MHS_NUMBER)}"
+
+    @staticmethod
+    def _natural_keys(text):
+        # see: https://stackoverflow.com/a/5967539/83096
+        return [ImageReader._atoi(c) for c in re.split(r'(\d+)', text)]
+
+    @staticmethod
+    def _atoi(text):
+        return int(text) if text.isdigit() else text
