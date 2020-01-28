@@ -35,8 +35,8 @@ class ImageProcessor:
     def _process_manuscript(self, manuscript):
         mhs_number = manuscript.get(ColumnKeys.MHS_NUMBER)
 
-        if Path(f"{MANIFEST_OUTPUT_DIR}/{mhs_number}.json").is_file():
-            print(f"{manuscript} already processed. Skipping")
+        if Path(os.path.join(MANIFEST_OUTPUT_DIR, f"{mhs_number}.json")).is_file():
+            print(f"{mhs_number} already processed. Skipping")
             return
 
         manifest = self._create_manifest(manuscript)
