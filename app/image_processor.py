@@ -1,15 +1,18 @@
 import time
 
+from typing import Iterable
 from pathlib import Path
-from iiif_prezi.factory import ManifestFactory
+from iiif_prezi.factory import ManifestFactory, Manifest
 from iiif.static import IIIFStatic
 
-from .column_keys import ColumnKeys
+from .column_keys import ColumnKeys, ManuscriptRow
 from .image_reader import ImageReader
 from .settings import *
 
 
 class ImageProcessor:
+    """Manage generation of IIIF resources from manuscript dictionary."""
+    _failed = []
 
     def __init__(self):
         self._manifest_factory = ManifestFactory()
@@ -28,24 +31,41 @@ class ImageProcessor:
 
         self._image_reader = ImageReader(IMAGE_SOURCE_DIR)
 
-    def generate_iiif_resources(self, manuscript_data):
+    def generate_iiif_resources(self, manuscript_data: Iterable[ManuscriptRow]) -> None:
+        """Generate static IIIF resources for every manuscript record.
+
+        IIIF resources include image pyramid and manifests.
+
+        :param manuscript_data:list of dictionaries containing manuscript metadata.
+        :return:None
+        """
         for manuscript in manuscript_data:
+            print(type(manuscript))
             self._process_manuscript(manuscript)
 
-    def _process_manuscript(self, manuscript):
+        if self._failed:
+            print("Errors encountered processing following manuscripts: ")
+            print(*self._failed, sep=", ")
+
+    def _process_manuscript(self, manuscript: ManuscriptRow) -> None:
         mhs_number = manuscript.get(ColumnKeys.MHS_NUMBER)
 
-        if Path(os.path.join(MANIFEST_OUTPUT_DIR, f"{mhs_number}.json")).is_file():
-            print(f"{mhs_number} already processed. Skipping")
-            return
+        # noinspection PyBroadException
+        try:
+            if Path(os.path.join(MANIFEST_OUTPUT_DIR, f"{mhs_number}.json")).is_file():
+                print(f"{mhs_number} already processed. Skipping")
+                return
 
-        manifest = self._create_manifest(manuscript)
+            manifest = self._create_manifest(manuscript)
 
-        self._add_canvases(manuscript, manifest)
+            self._add_canvases(manuscript, manifest)
 
-        manifest.toFile(compact=False)
+            manifest.toFile(compact=False)
+        except Exception as e:
+            print(f"**Error processing {mhs_number}. {e}")
+            self._failed.append(mhs_number)
 
-    def _create_manifest(self, manuscript):
+    def _create_manifest(self, manuscript: ManuscriptRow) -> Manifest:
         mhs_number = manuscript.get(ColumnKeys.MHS_NUMBER)
         alternative_name = manuscript.get(ColumnKeys.ALTERNATIVE_NAME)
 
@@ -57,7 +77,7 @@ class ImageProcessor:
         manifest.description = alternative_name
         return manifest
 
-    def _add_canvases(self, manuscript, manifest):
+    def _add_canvases(self, manuscript: ManuscriptRow, manifest: Manifest) -> None:
         manuscript_images = self._image_reader.get_files_for_manuscript(manuscript)
         mhs_number = manuscript.get(ColumnKeys.MHS_NUMBER)
 
@@ -89,7 +109,7 @@ class ImageProcessor:
             end = time.time()
             print(f"processed {image_id} in {end - start} secs")
 
-    def _generate_image_pyramid(self, image_file, image_id):
+    def _generate_image_pyramid(self, image_file: str, image_id: str) -> None:
         self._tile_generator.generate(src=image_file, identifier=image_id)
 
         # generate a 90-wide thumb for UV (see: https://github.com/UniversalViewer/universalviewer/issues/102)

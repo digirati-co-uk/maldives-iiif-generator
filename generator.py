@@ -7,7 +7,7 @@ from app.image_processor import ImageProcessor
 from app.settings import *
 
 
-def process_workbook():
+def process_workbook() -> dict:
     print("processing workbook..")
     workbook = xlrd.open_workbook(WORKBOOK)
     worksheet = workbook.sheet_by_index(0)
