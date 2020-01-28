@@ -1,14 +1,26 @@
+from typing import Sequence
+
 from .settings import *
-from .column_keys import ColumnKeys
+from .column_keys import ColumnKeys, ManuscriptRow
 
 
 class ImageReader:
+    """Provides functionality to read all images associated with manuscript."""
     _image_extension = IMAGE_EXTENSION
 
-    def __init__(self, base_dir):
+    def __init__(self, base_dir: str):
+        """Inits ImageReader using specified base directory.
+
+        :param base_dir:root directory containing manuscript images.
+        """
         self._base_dir = base_dir
 
-    def get_files_for_manuscript(self, manuscript):
+    def get_files_for_manuscript(self, manuscript: ManuscriptRow) -> Sequence[str]:
+        """Get a list of all image locations for specified manuscript.
+
+        :param manuscript:dictionary object containing
+        :return:a sequence containing path of all matching images.
+        """
         folder = self._get_folder_key(manuscript)
 
         image_files = []
@@ -22,5 +34,5 @@ class ImageReader:
         return image_files
 
     @staticmethod
-    def _get_folder_key(manuscript):
+    def _get_folder_key(manuscript: ManuscriptRow) -> str:
         return f"{manuscript.get(ColumnKeys.NO)}. {manuscript.get(ColumnKeys.MHS_NUMBER)}"
