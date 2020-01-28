@@ -40,7 +40,6 @@ class ImageProcessor:
         :return:None
         """
         for manuscript in manuscript_data:
-            print(type(manuscript))
             self._process_manuscript(manuscript)
 
         if self._failed:
