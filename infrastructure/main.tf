@@ -15,6 +15,12 @@ resource "aws_s3_bucket" "iiif_output" {
   bucket = "${var.prefix}-iiif-output"
   acl    = "public-read"
 
+  cors_rule {
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+    max_age_seconds = 3600
+  }
+
   tags = {
     Terraform = "true"
     Project   = "${var.project}"
