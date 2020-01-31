@@ -65,7 +65,26 @@ images/
 ```
 
 - Image format - some of the larger images are slow to convert (~100s). This is likely due to decompression/recompression from JPEG. To mitigate this, the files can be converted to TIFF prior to processing (e.g. by ImageMagick).
-- To avoid unnecessary re-processing of images on further runs (for example, if the process was stopped halfway through) manuscripts are skipped if a manifest.json file exists for that manuscript. Saving of manifest is the final step in processing so assumption is that if it made it that far then it's generate the image tiles.
+- To avoid unnecessary re-processing of resources on further runs (for example, if the process was stopped halfway through) manuscripts are skipped if a manifest.json file exists for that manuscript. Saving of manifest is the final step in processing so assumption is that if it made it that far then it's generate the image tiles.
+
+#### Settings
+
+`settings.py` contains a list of environment variables that can be used to alter generation process. These all have fallback values if they are not provided. The available options are:
+
+| Name | Description | Fallback |
+| --- | --- | --- |
+| BASE_URL | The base URL where the IIIF resources will be hosted. Assumes both manifests and images will share same base. | https://maldivesheritage.oxcis.ac.uk/ |
+| IMAGE_BASE_SLUG | Appended to `BASE_URL` to make root path to where images hosted. | /images/api |
+| IMAGE_FILE_OUTPUT_DIR | Output directory for generated images resources. | ./output/images/api |
+| IMAGE_SOURCE_DIR | Directory containing all images. See above for expected format. | ./data/image |
+| MANIFEST_BASE_SLUG | Appended to `BASE_URL` to make root path to where manifests hosted. | /manifest |
+| MANIFEST_OUTPUT_DIR | Output directory for generated manifest resources. | ./output/manifest |
+| WORKBOOK | Location of xlsx workbook containing manuscript data | ./data/image/Maldives.xlsx |
+| START_ROW | First row in workbook to start processing (0-based) | 7 |
+| END_ROW | Last row in workbook to start processing (0-based) | 95 |
+| IMAGE_EXTENSION | Image type to use for generating images | .jpg |
+| GENERATE_IMAGES | If True, generates image pyramid. Else only manifests are generated. | True |
+
 
 ## Infrastructure
 
