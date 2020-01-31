@@ -14,22 +14,25 @@ class ImageProcessor:
     """Manage generation of IIIF resources from manuscript dictionary."""
     _failed = []
 
-    def __init__(self):
-        self._manifest_factory = ManifestFactory()
-        self._tile_generator = IIIFStatic(dst=IMAGE_FILE_OUTPUT_DIR, prefix=IMAGE_BASE_URL)
+    def __init__(self, generate_image_pyramid: bool = True):
+        """Inits ImageProcessor and configures manifest factory.
 
-        # Where the resources live on the web
-        self._manifest_factory.set_base_prezi_uri(MANIFEST_BASE_URL)
-
-        # Where the resources live on disk
+        :param generate_image_pyramid:if True, pyramid map will be generated. Else, only manifest is generated.
+        """
         if not os.path.exists(MANIFEST_OUTPUT_DIR):
             os.makedirs(MANIFEST_OUTPUT_DIR)
+        self._manifest_factory = ManifestFactory()
+        self._manifest_factory.set_base_prezi_uri(MANIFEST_BASE_URL)
         self._manifest_factory.set_base_prezi_dir(MANIFEST_OUTPUT_DIR)
-
         self._manifest_factory.set_base_image_uri(IMAGE_BASE_URL)
         self._manifest_factory.set_iiif_image_info(2.0, 1)  # Version, ComplianceLevel
 
         self._image_reader = ImageReader(IMAGE_SOURCE_DIR)
+
+        if generate_image_pyramid:
+            self._tile_generator = IIIFStatic(dst=IMAGE_FILE_OUTPUT_DIR, prefix=IMAGE_BASE_URL)
+
+        self._generate_images = generate_image_pyramid
 
     def generate_iiif_resources(self, manuscript_data: Iterable[ManuscriptRow]) -> None:
         """Generate static IIIF resources for every manuscript record.
@@ -71,9 +74,10 @@ class ImageProcessor:
         print(f"creating manifest for {mhs_number}")
         manifest = self._manifest_factory.manifest(label=f"{mhs_number} - {alternative_name}", ident=mhs_number)
 
-        # add all non-empty fields as metadata (excluding "No" field as this is just internal
-        manifest.set_metadata({k: v for (k, v) in manuscript.items() if v and k != ColumnKeys.NO})
-        manifest.description = alternative_name
+        # add all non-empty fields as metadata (excluding "No" field as this is just internal id)
+        manifest.set_metadata({k: v for (k, v) in manuscript.items() if v and k != ColumnKeys.NO
+                               and k != ColumnKeys.COMMENTS})
+        manifest.description = manuscript.get(ColumnKeys.COMMENTS)
         return manifest
 
     def _add_canvases(self, manuscript: ManuscriptRow, manifest: Manifest) -> None:
@@ -109,6 +113,9 @@ class ImageProcessor:
             print(f"processed {image_id} in {end - start} secs")
 
     def _generate_image_pyramid(self, image_file: str, image_id: str) -> None:
+        if not self._generate_images:
+            return
+
         self._tile_generator.generate(src=image_file, identifier=image_id)
 
         # generate a 90-wide thumb for UV (see: https://github.com/UniversalViewer/universalviewer/issues/102)

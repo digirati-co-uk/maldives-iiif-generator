@@ -37,3 +37,6 @@ END_ROW = int(os.environ.get("END_ROW", 95))
 
 # The image type used for generating image pyramids
 IMAGE_EXTENSION = os.environ.get("IMAGE_EXTENSION", ".jpg")
+
+# If True, generate image pyramid
+GENERATE_IMAGES = bool(os.environ.get("GENERATE_IMAGES", True))

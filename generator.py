@@ -41,7 +41,7 @@ def main():
     data = process_workbook()
 
     print("generating IIIF resources..")
-    image_processor = ImageProcessor()
+    image_processor = ImageProcessor(GENERATE_IMAGES)
     image_processor.generate_iiif_resources(data)
 
     end = time.time()
