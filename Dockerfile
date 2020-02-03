@@ -1,11 +1,4 @@
-FROM python:3.8.1-alpine3.11
-
-RUN apk add --update --no-cache --virtual=run-deps \
-  build-base \
-  libxml2-dev \
-  libxslt-dev \
-  jpeg-dev \
-  && rm -rf /var/cache/apk/*
+FROM python:3.8-slim
 
 WORKDIR /opt/app
 COPY . /opt/app
