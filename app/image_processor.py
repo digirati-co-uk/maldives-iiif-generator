@@ -104,15 +104,15 @@ class ImageProcessor:
 
             # Set image height and width, and canvas to same dimensions
             image_file = manuscript_images[p]
-            self._generate_image_pyramid(image_file, image_id)
             img.set_hw_from_file(image_file)
             cvs.height = img.height
             cvs.width = img.width
+            self._generate_image_pyramid(image_file, image_id, img.width, img.height)
 
             end = time.time()
             print(f"processed {image_id} in {end - start} secs")
 
-    def _generate_image_pyramid(self, image_file: str, image_id: str) -> None:
+    def _generate_image_pyramid(self, image_file: str, image_id: str, width: int, height: int) -> None:
         if not self._generate_images:
             return
 
@@ -120,3 +120,10 @@ class ImageProcessor:
 
         # generate a 90-wide thumb for UV (see: https://github.com/UniversalViewer/universalviewer/issues/102)
         self._tile_generator.generate_tile("full", [90, None])
+
+        # generate a 1000-wide /full/ image for UV download
+        h = 1000 / (width / height)
+        self._tile_generator.generate_tile("full", [1000, h])
+
+        # generate a max-width /full/ image for UV download
+        self._tile_generator.generate_tile("full", [width, None])

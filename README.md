@@ -22,7 +22,7 @@ The easiest way to run the script is via Docker. This will ensure all dependenci
 2x volume mounts are required for running the script:
 
 - `/path/to/images/` - this is a local folder containing the manuscript images to be processed. These relate to rows in spreadsheet and must be in format `"{NO}. {MHS_NUMBER}"` (e.g. "1. MLE-ARC-MS3", "2. MLE-ARC-MS4").
-- `/path/for/output` - this is where all generated manifests and image tiles will be output to. The final output will generate `/iamges/api` and `/manifest` folders underneath here.
+- `/path/for/output/` - this is where all generated manifests and image tiles will be output to. The final output will generate `/iamges/api` and `/manifest` folders underneath here.
 
 To run via Docker:
 
