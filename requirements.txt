@@ -6,7 +6,7 @@ iiif-prezi==0.3.0
 itsdangerous==1.1.0
 Jinja2==2.11.3
 jmespath==0.9.4
-lxml==4.6.2
+lxml==4.6.3
 MarkupSafe==1.1.1
 Pillow==8.1.1
 PyLD==1.0.5
